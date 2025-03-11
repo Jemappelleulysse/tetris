@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-
+import java.util.Random;
 
 
 public class Board extends JPanel {
@@ -29,10 +29,7 @@ public class Board extends JPanel {
     private class Keyboard extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
-            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 
-                parcours(0,0,board[0][0].type);
-            }
         }
     }
 
@@ -65,8 +62,8 @@ public class Board extends JPanel {
     public Board() {
         bound();
         this.setBackground(Color.LIGHT_GRAY);
-        board = new Grain[80][160];
-        marked = new boolean[80][160];
+        board = new Grain[WIDTH/GRAIN_SIZE][HEIGHT/GRAIN_SIZE];
+        marked = new boolean[WIDTH/GRAIN_SIZE][HEIGHT/GRAIN_SIZE];
         this.addMouseMotionListener(new Mouse());
         this.addMouseListener(new Mouse());
     }
@@ -146,25 +143,94 @@ public class Board extends JPanel {
     }
 
     public static void updategrain(int i, int j) {
+        Random random = new Random();
         if (board[i][j].doDelete == 0) {
             if (j < HEIGHT/GRAIN_SIZE-1 && board[i][j+1] == null) {
-                board[i][j + 1] = board[i][j];
-                board[i][j].falling = true;
-                board[i][j+1].move(Grain.Moves.DOWN);
-                board[i][j] = null;
+                moveGrainFalling(i, j, 0, 1);
+            } else if (j < HEIGHT/GRAIN_SIZE-1 && i > 0 && i < WIDTH/GRAIN_SIZE-1 && board[i+1][j] == null && board[i-1][j] == null) {
+                int l = checkVoid(i,j,true);
+                int r = checkVoid(i,j,false);
+                if (l > 0 && r > 0) {
+
+                    if (l > r) {
+                        moveGrainFalling(i, j, -1, 1);
+                    } else if (r > l) {
+                        moveGrainFalling(i, j, 1, 1);
+                    } else {
+                        moveGrainFalling(i, j, (random.nextInt(2) == 0) ? -1 : 1, 1);
+                    }
+                } else if (r > 0) {
+                    if (r > 2) {
+                        moveGrainFalling(i,j,1,1);
+                    } else {
+                        int ra = random.nextInt(2);
+                        if (ra ==0) {
+                            moveGrainFalling(i, j, 1, 1);
+                        }
+                    }
+                } else if (l > 0) {
+                    if (l > 2) {
+                        moveGrainFalling(i,j,-1,1);
+                    } else {
+                        int ra = random.nextInt(2);
+                        if (ra == 0) {
+                            moveGrainFalling(i, j, -1, 1);
+                        }
+                    }
+                } else {
+                    board[i][j].falling = false;
+                }
+
+            } else if (i > 0 && board[i-1][j] == null) {
+                if (j < HEIGHT/GRAIN_SIZE-1 && board[i-1][j+1] == null) {
+                    moveGrainFalling(i, j, -1, 1);
+                } else {
+                    board[i][j].falling = false;
+                }
+            } else if (i < WIDTH/GRAIN_SIZE-1 && board[i+1][j] == null) {
+                if (j < HEIGHT/GRAIN_SIZE-1 && board[i+1][j+1] == null) {
+                    moveGrainFalling(i, j, 1, 1);
+                } else {
+                    board[i][j].falling = false;
+                }
             } else {
                 board[i][j].falling = false;
             }
-
         } else if (board[i][j].doDelete > 50) {
             board[i][j].doDelete = 0;
             board[i][j] = null;
-        } else {
+        } else if (board[i][j].doDelete > 0) {
             board[i][j].doDelete +=2;
             board[i][j].color = Color.black;
         }
+    }
 
 
+    public static void moveGrainFalling(int i, int j, int x, int y) {
+        if (x > 0) {
+            board[i][j].move(Grain.Moves.RIGHT);
+        } else if (x < 0) {
+            board[i][j].move(Grain.Moves.LEFT);
+        }
+        if (y > 0) {
+            board[i][j].move(Grain.Moves.DOWN);
+        } else if (y < 0) {
+            board[i][j].move(Grain.Moves.UP);
+        }
+        board[i][j].falling = true;
+        board[i+x][j+y] = board[i][j];
+        board[i][j] = null;
+    }
+
+    public static int checkVoid(int i, int j,boolean left) {
+        if ((left && i == 0) || (!left && i == WIDTH/GRAIN_SIZE-1) || (board[i + ((left) ? -1 : 1)][j+1] != null) || (board[i + ((left) ? -1 : 1)][j] != null)) {
+            return 0;
+        }
+        int cpt = 1;
+        while (j + cpt +1 < HEIGHT/GRAIN_SIZE && board[i+((left) ? -1 : 1)][j+cpt+1] == null) {
+            cpt++;
+        }
+        return cpt;
 
 
     }
