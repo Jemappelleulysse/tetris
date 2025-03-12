@@ -29,7 +29,11 @@ public class Board extends JPanel {
     private class Keyboard extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
+            System.out.println("hein");
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 
+                addPack(WIDTH/GRAIN_SIZE/2 - 8,0,new Pack().create4x4Pack(10,10,Grain.Type.BLUE));
+            }
         }
     }
 
@@ -66,6 +70,9 @@ public class Board extends JPanel {
         marked = new boolean[WIDTH/GRAIN_SIZE][HEIGHT/GRAIN_SIZE];
         this.addMouseMotionListener(new Mouse());
         this.addMouseListener(new Mouse());
+        this.addKeyListener(new Keyboard());
+        this.setFocusable(true); // Make the Board focusable
+        this.requestFocusInWindow(); // Request focus for the Board
     }
 
     public void show() {
@@ -89,7 +96,9 @@ public class Board extends JPanel {
         }
     }
 
-    public static void update() {
+    public static void update(long time) {
+
+
 
         for (int i = WIDTH/GRAIN_SIZE-1 ; i >= 0 ; i--) {
             for (int j = HEIGHT/GRAIN_SIZE-1 ; j >= 0 ; j--) {
@@ -151,7 +160,6 @@ public class Board extends JPanel {
                 int l = checkVoid(i,j,true);
                 int r = checkVoid(i,j,false);
                 if (l > 0 && r > 0) {
-
                     if (l > r) {
                         moveGrainFalling(i, j, -1, 1);
                     } else if (r > l) {
@@ -231,8 +239,14 @@ public class Board extends JPanel {
             cpt++;
         }
         return cpt;
+    }
 
-
+    public void addPack(int x, int y , Pack pack) {
+        for (int i = 0 ; i < pack.width ; i++) {
+            for (int j = 0 ; j < pack.height ; j++) {
+                board[x+i][y+j] = pack.positions[i][j];
+            }
+        }
     }
 
 

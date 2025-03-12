@@ -11,15 +11,13 @@ public class Main {
             int x = random.nextInt(80);
             int y = random.nextInt(160);
             Grain grain = new Grain(Grain.Type.RED, Color.red);
-            Board.board[x][y] = grain;
+            //Board.board[x][y] = grain;
         }
+
+        long time = System.currentTimeMillis();
         while (true) {
-            try {
-                Thread.sleep(16);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Board.update();
+            time = System.currentTimeMillis() - time;
+            Board.update(time);
         }
 
     }
@@ -29,6 +27,7 @@ public class Main {
         window.show();
         Board board = new Board();
         window.add(board);
+        board.requestFocusInWindow();
         board.show();
     }
 

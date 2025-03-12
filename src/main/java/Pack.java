@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Pack {
@@ -9,31 +10,35 @@ public class Pack {
     // 2,0 2,1 2,2 2,3 2,4
     // 3,0 3,1 3,2 3,3 3,4
 
-    private boolean right;
-    private boolean left;
-    int x;
-    int y;
     int width;
     int height;
     int type;
-    private int[][] positions;
+    Grain[][] positions;
 
     public Pack() {
-        //grains = new ArrayList<>();
     }
 
     public void addGrain(Grain grain) {
-        //grains.add(new Pgrain);
-        if (grain.right) {
-            right = true;
-        }
-        if (grain.left) {
-            left = true;
-        }
     }
 
     public void update() {
     }
+
+    public static Pack create4x4Pack(int x, int y, Grain.Type type) {
+        Pack pack = new Pack();
+        pack.width = 16;
+        pack.height = 16;
+        pack.positions = new Grain[16][16];
+        for (int i = 0 ; i < 16 ; i++) {
+            for (int j = 0 ; j < 16 ; j++) {
+                pack.positions[i][j] = new Grain(type, Color.blue);
+            }
+        }
+        return pack;
+    }
+
+
+
 
 
 
